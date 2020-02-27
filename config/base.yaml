@@ -1,0 +1,11 @@
+app:
+  addr: ":8080"
+  dsn: "root@/upstart"
+  logging:
+    level: debug
+    development: true
+    encoding: console
+    outputPaths:
+      - stdout
+    errorOutputPaths:
+      - stderr

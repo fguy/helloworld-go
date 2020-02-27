@@ -1,0 +1,59 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: helloworld-go-deployment
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: helloworld-go-app
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: helloworld-go-app
+    spec:
+      containers:
+      - name: helloworld-go
+        image: idock.daumkakao.io/travis_kang/helloworld-go:latest
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: 500m
+            memory: 200Mi
+        ports:
+        - containerPort: 50051
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: helloworld-go-svc
+spec:
+  ports:
+  - port: 80
+    name: http
+    protocol: TCP
+    targetPort: 8080
+  - port: 50051
+    name: grpc
+    protocol: TCP
+    targetPort: 50051
+  selector:
+    app: helloworld-go-app
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tcp-services
+  namespace: ingress-nginx
+data:
+  50051: "default/helloworld-go-svc:50051"
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: helloworld-go-ingress
+spec:
+  backend:
+    serviceName: helloworld-go-svc
+    servicePort: 80
